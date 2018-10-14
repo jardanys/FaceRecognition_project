@@ -2,6 +2,10 @@ import cv2
 import numpy as np
 import time
 import pandas as pd
+import sys
+from pyimagesearch.centroidtracker import CentroidTracker
+import argparse
+import imutils
 
 vector = []
 face_cascade = cv2.CascadeClassifier('./cascade_files/haarcascade_frontalface_alt.xml')
@@ -10,12 +14,15 @@ cap = cv2.VideoCapture(0)
 scaling_factor = 1
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
+tracker = cv2.TrackerGOTURN_create()
 
 while (cap.isOpened()):
 	ret, frame = cap.read()
 	frame = cv2.resize(frame, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
 	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 	face_rects = face_cascade.detectMultiScale(gray, 1.3, 5)
+	ok = tracker.init(frame, face_rects)
+	ok, bbox = tracker.update(frame)
 	if len(face_rects)==1:
 		time_rects = time.ctime()
 		vector.append(time_rects)
